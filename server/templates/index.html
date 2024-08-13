@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PCTracer</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">PCTracer</div>
+            <p class="description">Trace executable binary's DLL. Trace executable binary's DLL. Trace executable binary's DLL. Trace executable binary's DLL. Trace executable binary's DLL. Trace executable binary's DLL. Trace executable binary's DLL.Trace executable binary's DLL. Trace executable binary's DLL. Trace executable binary's DLL. Trace executable binary's DLL. Trace executable binary's DLL. Trace executable binary's DLL. Trace executable binary's DLL. Trace executable binary's DLL.Trace executable binary's DLL.</p>
+        </div>
+        <div class="tab-container">
+            <div class="tab active">TARGET FILE</div>
+        </div>
+        <div class="upload-section">
+            <div class="file-icon">
+                <img src="static/icons/PCTracer_icon.jpg" alt="File Icon" id="fileImage">
+            </div>
+            <form id="uploadForm" enctype="multipart/form-data">
+                <input type="file" name="file" id="file" style="display:none;" onchange="uploadFile()">
+                <label for="file" class="upload-button">Upload file</label>
+            </form>
+        </div>
+        <div id="loading" style="display:none;">
+            <p>Analyzing the file, please wait...</p>
+            <div class="loader"></div>
+        </div>
+        <div id="result" style="display:none;">
+            <p>Analysis Result:</p>
+            <pre id="output"></pre>
+            <button onclick="goBack()" class="back-button">Go Back</button>
+        </div>
+    </div>
+
+    <script>
+        function uploadFile() {
+            const formData = new FormData(document.getElementById('uploadForm'));
+            document.getElementById('uploadForm').style.display = 'none';
+            document.getElementById('loading').style.display = 'block';
+
+            fetch(
+                "{{ url_for('upload_file') }}", 
+                    {
+                        method: 'POST',
+                        body: formData
+                    }
+                )
+            .then(response => response.json())
+            .then(data => 
+                {
+                    getFileIcon(formData);
+                    getFileAnanyzeResult(formData);
+                }
+            ).catch(error => {
+                alert("An error occurred: " + error.message);
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('uploadForm').style.display = 'block';
+            });
+        }
+
+        function getFileIcon(formData) {
+            fetch(
+                "{{ url_for('get_file_icon_url') }}", 
+                    {
+                        method: 'POST',
+                        body: formData
+                    }
+                )
+            .then(response => response.json())
+            .then(data => {
+                if (data.image_url) {
+                    document.getElementById('fileImage').src = data.image_url;
+                }
+            })
+        }
+
+        function getFileAnanyzeResult(formData) {
+            fetch("{{ url_for('analyze_file') }}", {
+                method: 'POST',
+                body: formData
+            }).then(response => response.json())
+            .then(data => {
+                if (data.output) {
+                    document.getElementById('output').textContent = data.output;
+                    document.getElementById('loading').style.display = 'none';
+                    document.getElementById('result').style.display = 'block';
+                } else {
+                    alert("File analysis failed: " + (data.error || "Unknown error"));
+                }
+            }).catch(error => {
+                alert("An error occurred: " + error.message);
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('uploadForm').style.display = 'block';
+            });
+        }
+
+        function goBack() {
+            document.getElementById('result').style.display = 'none';
+            document.getElementById('uploadForm').reset();  
+            document.getElementById('fileImage').src = "static/icons/PCTracer_icon.jpg";  
+            document.getElementById('uploadForm').style.display = 'block';
+        }
+    </script>
+</body>
+</html>

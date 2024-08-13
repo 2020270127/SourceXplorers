@@ -1,0 +1,7 @@
+powershell 실행 정책 일시 변경 
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+
+powershell 실행 정책 복원
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Default
+
+
