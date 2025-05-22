@@ -103,6 +103,4 @@ A Windows-only Flask web application that lets you:
 
 ---
 
-## License
 
-This project is licensed under MIT. See [LICENSE](LICENSE) in the repository root.
